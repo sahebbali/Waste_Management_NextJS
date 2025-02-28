@@ -48,17 +48,17 @@ export async function createReport(
 
     // Award 10 points for reporting waste
     const pointsEarned = 10;
-    await updateRewardPoints(userId, pointsEarned);
+    // await updateRewardPoints(userId, pointsEarned);
 
     // Create a transaction for the earned points
-    await createTransaction(userId, 'earned_report', pointsEarned, 'Points earned for reporting waste');
+    // await createTransaction(userId, 'earned_report', pointsEarned, 'Points earned for reporting waste');
 
     // Create a notification for the user
-    await createNotification(
-      userId,
-      `You've earned ${pointsEarned} points for reporting waste!`,
-      'reward'
-    );
+    // await createNotification(
+    //   userId,
+    //   `You've earned ${pointsEarned} points for reporting waste!`,
+    //   'reward'
+    // );
 
     return report;
   } catch (error) {
