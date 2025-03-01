@@ -66,3 +66,26 @@ export async function createReport(
     return null;
   }
 }
+
+
+export async function getUnreadNotifications(userId: number) {
+  try {
+    return await db.select().from(Notifications).where(
+      and(
+        eq(Notifications.userId, userId),
+        eq(Notifications.isRead, false)
+      )
+    ).execute();
+  } catch (error) {
+    console.error("Error fetching unread notifications:", error);
+    return [];
+  }
+}
+
+export async function markNotificationAsRead(notificationId: number) {
+  try {
+    await db.update(Notifications).set({ isRead: true }).where(eq(Notifications.id, notificationId)).execute();
+  } catch (error) {
+    console.error("Error marking notification as read:", error);
+  }
+}
