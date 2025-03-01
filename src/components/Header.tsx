@@ -16,7 +16,7 @@ import { Web3Auth } from "@web3auth/modal"
 import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base"
 import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider"
 import { useMediaQuery } from "@/hooks/useMediaQuery"
-import { createUser, getUnreadNotifications, markNotificationAsRead, getUserByEmail, getUserBalance } from "@/utils/db/actions"
+import { createUser, getUnreadNotifications, markNotificationAsRead, getUserByEmail, getUserBalance } from "../../utils/db/action"
 
 const clientId = "BNzRcpUze5p0vlw6T8MZaf9q9prtG4Dj7Ji46vOenP6CE2nNGYL2weNQlmTgdeO4mXx61aINHgrG-Bhjwd7RR7Y";
 
