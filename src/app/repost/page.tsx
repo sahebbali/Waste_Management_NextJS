@@ -155,6 +155,53 @@ const handleVerify = async () => {
       setVerificationStatus('failure');
     }
   }
+
+
+
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (verificationStatus !== 'success' || !user) {
+      toast.error('Please verify the waste before submitting or log in.');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    try {
+      const report = await createReport(
+        user.id,
+        newReport.location,
+        newReport.type,
+        newReport.amount,
+        preview || undefined,
+        verificationResult ? JSON.stringify(verificationResult) : undefined
+      ) as any;
+      
+      const formattedReport = {
+        id: report.id,
+        location: report.location,
+        wasteType: report.wasteType,
+        amount: report.amount,
+        createdAt: report.createdAt.toISOString().split('T')[0]
+      };
+      
+      setReports([formattedReport, ...reports]);
+      setNewReport({ location: '', type: '', amount: '' });
+      setFile(null);
+      setPreview(null);
+      setVerificationStatus('idle');
+      setVerificationResult(null);
+      
+
+      toast.success(`Report submitted successfully! You've earned points for reporting waste.`);
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      toast.error('Failed to submit report. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
     return (
         <div className="p-8 max-w-4xl mx-auto">
           <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
