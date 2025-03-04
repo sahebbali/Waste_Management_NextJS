@@ -57,6 +57,24 @@ export default function ReportPage() {
     const onLoad = useCallback((ref: google.maps.places.SearchBox) => {
       setSearchBox(ref);
     }, []);
+
+const onPlacesChanged = () => {
+    if (searchBox) {
+      const places = searchBox.getPlaces();
+      if (places && places.length > 0) {
+        const place = places[0];
+        setNewReport(prev => ({
+          ...prev,
+          location: place.formatted_address || '',
+        }));
+      }
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setNewReport({ ...newReport, [name]: value })
+  }
   
     return (
         <div className="p-8 max-w-4xl mx-auto">
