@@ -95,6 +95,66 @@ const onPlacesChanged = () => {
       reader.readAsDataURL(file);
     });
   };
+
+const handleVerify = async () => {
+    if (!file) return
+
+    setVerificationStatus('verifying')
+    
+    try {
+      const genAI = new GoogleGenerativeAI(geminiApiKey!);
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+      const base64Data = await readFileAsBase64(file);
+
+      const imageParts = [
+        {
+          inlineData: {
+            data: base64Data.split(',')[1],
+            mimeType: file.type,
+          },
+        },
+      ];
+
+      const prompt = `You are an expert in waste management and recycling. Analyze this image and provide:
+        1. The type of waste (e.g., plastic, paper, glass, metal, organic)
+        2. An estimate of the quantity or amount (in kg or liters)
+        3. Your confidence level in this assessment (as a percentage)
+        
+        Respond in JSON format like this:
+        {
+          "wasteType": "type of waste",
+          "quantity": "estimated quantity with unit",
+          "confidence": confidence level as a number between 0 and 1
+        }`;
+
+      const result = await model.generateContent([prompt, ...imageParts]);
+      const response = await result.response;
+      const text = response.text();
+      
+      try {
+        const parsedResult = JSON.parse(text);
+        if (parsedResult.wasteType && parsedResult.quantity && parsedResult.confidence) {
+          setVerificationResult(parsedResult);
+          setVerificationStatus('success');
+          setNewReport({
+            ...newReport,
+            type: parsedResult.wasteType,
+            amount: parsedResult.quantity
+          });
+        } else {
+          console.error('Invalid verification result:', parsedResult);
+          setVerificationStatus('failure');
+        }
+      } catch (error) {
+        console.error('Failed to parse JSON response:', text);
+        setVerificationStatus('failure');
+      }
+    } catch (error) {
+      console.error('Error verifying waste:', error);
+      setVerificationStatus('failure');
+    }
+  }
     return (
         <div className="p-8 max-w-4xl mx-auto">
           <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
