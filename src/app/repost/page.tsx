@@ -87,7 +87,14 @@ const onPlacesChanged = () => {
       reader.readAsDataURL(selectedFile)
     }
   }
-
+  const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
     return (
         <div className="p-8 max-w-4xl mx-auto">
           <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
