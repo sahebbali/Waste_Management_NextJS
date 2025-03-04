@@ -1,24 +1,41 @@
 // @ts-nocheck
-'use client'
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { usePathname } from 'next/navigation'
-import { Button } from "@/components/ui/button"
-import { Menu, Coins, Leaf, Search, Bell, User, ChevronDown, LogIn, LogOut } from "lucide-react"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { Web3Auth } from "@web3auth/modal"
-import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base"
-import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider"
-import { useMediaQuery } from "@/hooks/useMediaQuery"
-import { createUser, getUnreadNotifications, markNotificationAsRead, getUserByEmail, getUserBalance } from "../../utils/db/action"
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Menu,
+  Coins,
+  Leaf,
+  Search,
+  Bell,
+  User,
+  ChevronDown,
+  LogIn,
+  LogOut,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { Web3Auth } from "@web3auth/modal";
+import { CHAIN_NAMESPACES, IProvider, WEB3AUTH_NETWORK } from "@web3auth/base";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import {
+  createUser,
+  getUnreadNotifications,
+  markNotificationAsRead,
+  getUserByEmail,
+  getUserBalance,
+} from "../../utils/db/action";
 
-const clientId = "BNzRcpUze5p0vlw6T8MZaf9q9prtG4Dj7Ji46vOenP6CE2nNGYL2weNQlmTgdeO4mXx61aINHgrG-Bhjwd7RR7Y";
+const clientId =
+  "BNzRcpUze5p0vlw6T8MZaf9q9prtG4Dj7Ji46vOenP6CE2nNGYL2weNQlmTgdeO4mXx61aINHgrG-Bhjwd7RR7Y";
 
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
@@ -35,9 +52,10 @@ const privateKeyProvider = new EthereumPrivateKeyProvider({
   config: { chainConfig },
 });
 
+// web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET, // Changed from SAPPHIRE_MAINNET to TESTNET
 const web3auth = new Web3Auth({
   clientId,
-  web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET, // Changed from SAPPHIRE_MAINNET to TESTNET
+  web3AuthNetwork: "sapphire_devnet", // Changed from SAPPHIRE_MAINNET to TESTNET
   privateKeyProvider,
 });
 
@@ -51,31 +69,31 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [userInfo, setUserInfo] = useState<any>(null);
-  const pathname = usePathname()
+  const pathname = usePathname();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const isMobile = useMediaQuery("(max-width: 768px)")
-  const [balance, setBalance] = useState(0)
+  const isMobile = useMediaQuery("(max-width: 768px)");
+  const [balance, setBalance] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  console.log('user info', userInfo);
-  
+  console.log("user info", userInfo);
+  console.log({ provider });
+  console.log({ loggedIn });
+  console.log({ isInitialized });
   useEffect(() => {
     const init = async () => {
       try {
+        console.log("Initializing Web3Auth...");
         await web3auth.initModal();
+        console.log("Web3Auth initialized successfully:", web3auth);
         setProvider(web3auth.provider);
+        setIsInitialized(true);
 
         if (web3auth.connected) {
           setLoggedIn(true);
           const user = await web3auth.getUserInfo();
           setUserInfo(user);
           if (user.email) {
-            localStorage.setItem('userEmail', user.email);
-            try {
-              await createUser(user.email, user.name || 'Anonymous User');
-            } catch (error) {
-              console.error("Error creating user:", error);
-              // Handle the error appropriately, maybe show a message to the user
-            }
+            localStorage.setItem("userEmail", user.email);
           }
         }
       } catch (error) {
@@ -125,10 +143,16 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
       setBalance(event.detail);
     };
 
-    window.addEventListener('balanceUpdated', handleBalanceUpdate as EventListener);
+    window.addEventListener(
+      "balanceUpdated",
+      handleBalanceUpdate as EventListener
+    );
 
     return () => {
-      window.removeEventListener('balanceUpdated', handleBalanceUpdate as EventListener);
+      window.removeEventListener(
+        "balanceUpdated",
+        handleBalanceUpdate as EventListener
+      );
     };
   }, [userInfo]);
 
@@ -137,16 +161,19 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
       console.log("web3auth not initialized yet");
       return;
     }
+    // console.log({ web3auth });
     try {
+      console.log("hello")
       const web3authProvider = await web3auth.connect();
+      console.log({ web3authProvider });
       setProvider(web3authProvider);
       setLoggedIn(true);
       const user = await web3auth.getUserInfo();
       setUserInfo(user);
       if (user.email) {
-        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem("userEmail", user.email);
         try {
-          await createUser(user.email, user.name || 'Anonymous User');
+          await createUser(user.email, user.name || "Anonymous User");
         } catch (error) {
           console.error("Error creating user:", error);
           // Handle the error appropriately, maybe show a message to the user
@@ -167,7 +194,7 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
       setProvider(null);
       setLoggedIn(false);
       setUserInfo(null);
-      localStorage.removeItem('userEmail');
+      localStorage.removeItem("userEmail");
     } catch (error) {
       console.error("Error during logout:", error);
     }
@@ -178,9 +205,9 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
       const user = await web3auth.getUserInfo();
       setUserInfo(user);
       if (user.email) {
-        localStorage.setItem('userEmail', user.email);
+        localStorage.setItem("userEmail", user.email);
         try {
-          await createUser(user.email, user.name || 'Anonymous User');
+          await createUser(user.email, user.name || "Anonymous User");
         } catch (error) {
           console.error("Error creating user:", error);
           // Handle the error appropriately, maybe show a message to the user
@@ -191,8 +218,10 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
 
   const handleNotificationClick = async (notificationId: number) => {
     await markNotificationAsRead(notificationId);
-    setNotifications(prevNotifications => 
-      prevNotifications.filter(notification => notification.id !== notificationId)
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter(
+        (notification) => notification.id !== notificationId
+      )
     );
   };
 
@@ -204,14 +233,23 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="flex items-center justify-between px-4 py-2">
         <div className="flex items-center">
-          <Button variant="ghost" size="icon" className="mr-2 md:mr-4" onClick={onMenuClick}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-2 md:mr-4"
+            onClick={onMenuClick}
+          >
             <Menu className="h-6 w-6" />
           </Button>
           <Link href="/" className="flex items-center">
             <Leaf className="h-6 w-6 md:h-8 md:w-8 text-green-500 mr-1 md:mr-2" />
             <div className="flex flex-col">
-              <span className="font-bold text-base md:text-lg text-gray-800">Zero2Hero</span>
-              <span className="text-[8px] md:text-[10px] text-gray-500 -mt-1">ETHOnline24</span>
+              <span className="font-bold text-base md:text-lg text-gray-800">
+                Zero2Hero
+              </span>
+              <span className="text-[8px] md:text-[10px] text-gray-500 -mt-1">
+                ETHOnline24
+              </span>
             </div>
           </Link>
         </div>
@@ -247,13 +285,15 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
             <DropdownMenuContent align="end" className="w-64">
               {notifications.length > 0 ? (
                 notifications.map((notification) => (
-                  <DropdownMenuItem 
+                  <DropdownMenuItem
                     key={notification.id}
                     onClick={() => handleNotificationClick(notification.id)}
                   >
                     <div className="flex flex-col">
                       <span className="font-medium">{notification.type}</span>
-                      <span className="text-sm text-gray-500">{notification.message}</span>
+                      <span className="text-sm text-gray-500">
+                        {notification.message}
+                      </span>
                     </div>
                   </DropdownMenuItem>
                 ))
@@ -269,14 +309,22 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
             </span>
           </div>
           {!loggedIn ? (
-            <Button onClick={login} className="bg-green-600 hover:bg-green-700 text-white text-sm md:text-base">
+            <Button
+              onClick={login}
+              // disabled={!isInitialized} // Disable button until initialized
+              className="bg-green-600 hover:bg-green-700 text-white text-sm md:text-base"
+            >
               Login
               <LogIn className="ml-1 md:ml-2 h-4 w-4 md:h-5 md:w-5" />
             </Button>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="flex items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex items-center"
+                >
                   <User className="h-5 w-5 mr-1" />
                   <ChevronDown className="h-4 w-4" />
                 </Button>
@@ -296,5 +344,5 @@ export default function Header({ onMenuClick, totalEarnings }: HeaderProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }
