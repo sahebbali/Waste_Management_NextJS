@@ -76,6 +76,18 @@ const onPlacesChanged = () => {
     setNewReport({ ...newReport, [name]: value })
   }
   
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0]
+      setFile(selectedFile)
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setPreview(e.target?.result as string)
+      }
+      reader.readAsDataURL(selectedFile)
+    }
+  }
+
     return (
         <div className="p-8 max-w-4xl mx-auto">
           <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
