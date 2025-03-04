@@ -1,7 +1,63 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function ReportPage() {
-
+    const [user, setUser] = useState<{ id: number; email: string; name: string } | null>(null);
+    const router = useRouter();
+  
+    const [reports, setReports] = useState<Array<{
+      id: number;
+      location: string;
+      wasteType: string;
+      amount: string;
+      createdAt: string;
+    }>>([]);
+  
+    const [newReport, setNewReport] = useState({
+      location: '',
+      type: '',
+      amount: '',
+    })
+  
+    const [file, setFile] = useState
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <File | null>(null)
+    const [preview, setPreview] = useState<string | null>(null)
+    const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'success' | 'failure'>('idle')
+    const [verificationResult, setVerificationResult] = useState<{
+      wasteType: string;
+      quantity: string;
+      confidence: number;
+    } | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+  
+    const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
+  
+    const { isLoaded } = useJsApiLoader({
+      id: 'google-map-script',
+      googleMapsApiKey: googleMapsApiKey!,
+      libraries: libraries
+    });
+  
+    const onLoad = useCallback((ref: google.maps.places.SearchBox) => {
+      setSearchBox(ref);
+    }, []);
+  
     return (
         <div className="p-8 max-w-4xl mx-auto">
           <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
