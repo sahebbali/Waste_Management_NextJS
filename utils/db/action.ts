@@ -174,3 +174,18 @@ export async function getUserBalance(userId: number): Promise<number> {
   }, 0);
   return Math.max(balance, 0); // Ensure balance is never negative
 }
+
+export async function getRecentReports(limit: number = 10) {
+  try {
+    const reports = await db
+      .select()
+      .from(Reports)
+      .orderBy(desc(Reports.createdAt))
+      .limit(limit)
+      .execute();
+    return reports;
+  } catch (error) {
+    console.error("Error fetching recent reports:", error);
+    return [];
+  }
+}
