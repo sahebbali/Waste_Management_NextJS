@@ -1,4 +1,20 @@
-import React, { useState } from "react";
+'use client'
+import { useState, useCallback, useEffect } from 'react'
+import {  MapPin, Upload, CheckCircle, Loader } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { StandaloneSearchBox,  useJsApiLoader } from '@react-google-maps/api'
+import { Libraries } from '@react-google-maps/api';
+import { createUser, getUserByEmail, createReport, getRecentReports } from '../../../utils/db/action';
+import { useRouter } from 'next/navigation';
+import { toast } from 'react-hot-toast'
+
+const geminiApiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+const libraries: Libraries = ['places'];
+
+
 
 export default function ReportPage() {
     const [user, setUser] = useState<{ id: number; email: string; name: string } | null>(null);
@@ -202,6 +218,31 @@ const handleVerify = async () => {
       setIsSubmitting(false);
     }
   };
+
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const email = localStorage.getItem('userEmail');
+      if (email) {
+        let user = await getUserByEmail(email);
+        if (!user) {
+          user = await createUser(email, 'Anonymous User');
+        }
+        setUser(user);
+        
+        const recentReports = await getRecentReports();
+        const formattedReports = recentReports.map(report => ({
+          ...report,
+          createdAt: report.createdAt.toISOString().split('T')[0]
+        }));
+        setReports(formattedReports);
+      } else {
+        router.push('/login'); 
+      }
+    };
+    checkUser();
+  }, [router]);
+
     return (
         <div className="p-8 max-w-4xl mx-auto">
           <h1 className="text-3xl font-semibold mb-6 text-gray-800">Report waste</h1>
