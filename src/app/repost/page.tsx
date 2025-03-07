@@ -49,7 +49,7 @@ export default function ReportPage() {
     googleMapsApiKey: googleMapsApiKey!,
     libraries: libraries
   });
-
+console.log("searchBox")
   const onLoad = useCallback((ref: google.maps.places.SearchBox) => {
     setSearchBox(ref);
   }, []);
