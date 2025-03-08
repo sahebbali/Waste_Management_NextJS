@@ -77,7 +77,7 @@ export default function Home() {
   const login = () => {
     setLoggedIn(true);
   };
-
+console.log({impactData})
   return (
     <div className={`container mx-auto px-4 py-16 ${poppins.className}`}>
       <section className="text-center mb-20">
