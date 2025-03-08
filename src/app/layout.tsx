@@ -40,7 +40,7 @@ export default function RootLayout({
 
     fetchTotalEarnings()
   }, [])
-
+console.log({totalEarnings})
   return (
     <html lang="en">
       <body className={inter.className}>
