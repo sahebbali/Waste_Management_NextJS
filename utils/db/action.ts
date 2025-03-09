@@ -272,3 +272,22 @@ export async function saveReward(userId: number, amount: number) {
     throw error;
   }
 }
+
+export async function saveCollectedWaste(reportId: number, collectorId: number, verificationResult: any) {
+  try {
+    const [collectedWaste] = await db
+      .insert(CollectedWastes)
+      .values({
+        reportId,
+        collectorId,
+        collectionDate: new Date(),
+        status: 'verified',
+      })
+      .returning()
+      .execute();
+    return collectedWaste;
+  } catch (error) {
+    console.error("Error saving collected waste:", error);
+    throw error;
+  }
+}
