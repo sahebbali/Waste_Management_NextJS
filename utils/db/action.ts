@@ -234,3 +234,41 @@ export async function updateTaskStatus(reportId: number, newStatus: string, coll
     throw error;
   }
 }
+
+export async function createTransaction(userId: number, type: 'earned_report' | 'earned_collect' | 'redeemed', amount: number, description: string) {
+  try {
+    const [transaction] = await db
+      .insert(Transactions)
+      .values({ userId, type, amount, description })
+      .returning()
+      .execute();
+    return transaction;
+  } catch (error) {
+    console.error("Error creating transaction:", error);
+    throw error;
+  }
+}
+export async function saveReward(userId: number, amount: number) {
+  try {
+    const [reward] = await db
+      .insert(Rewards)
+      .values({
+        userId,
+        name: 'Waste Collection Reward',
+        collectionInfo: 'Points earned from waste collection',
+        points: amount,
+        level: 1,
+        isAvailable: true,
+      })
+      .returning()
+      .execute();
+    
+    // Create a transaction for this reward
+    await createTransaction(userId, 'earned_collect', amount, 'Points earned for collecting waste');
+
+    return reward;
+  } catch (error) {
+    console.error("Error saving reward:", error);
+    throw error;
+  }
+}
