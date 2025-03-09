@@ -215,3 +215,22 @@ export async function getWasteCollectionTasks(limit: number = 20) {
     return [];
   }
 }
+
+export async function updateTaskStatus(reportId: number, newStatus: string, collectorId?: number) {
+  try {
+    const updateData: any = { status: newStatus };
+    if (collectorId !== undefined) {
+      updateData.collectorId = collectorId;
+    }
+    const [updatedReport] = await db
+      .update(Reports)
+      .set(updateData)
+      .where(eq(Reports.id, reportId))
+      .returning()
+      .execute();
+    return updatedReport;
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    throw error;
+  }
+}
